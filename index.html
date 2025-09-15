@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>حاسبة كميات الخرسانة والسعر</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      direction: rtl;
+      text-align: center;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    h1 {
+      color: #ff7a00;
+      margin-bottom: 10px;
+    }
+    .calculator {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      margin: 20px auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, select {
+      width: 80%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      text-align: center;
+    }
+    button {
+      padding: 10px 20px;
+      background: #ff7a00;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .result {
+      margin-top: 15px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .whatsapp-btn {
+      display: none;
+      margin-top: 15px;
+      text-decoration: none;
+      background-color: #25D366;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    .note {
+      font-size: 14px;
+      color: #555;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>مجموعة تكنولوجيا الإنشاء والتعمير</h1>
+  <h2>حاسبة كميات الخرسانة والسعر</h2>
+  <p>أدخل بيانات البلاطة لتحديد كمية الخرسانة وعدد أكياس الأسمنت والسعر المبدئي</p>
+
+  <div class="calculator">
+    <input type="text" id="name" placeholder="اسم العميل (اختياري)">
+    <input type="tel" id="phone" placeholder="رقم الهاتف (اختياري)">
+    <input type="number" id="length" placeholder="الطول (متر)">
+    <input type="number" id="width" placeholder="العرض (متر)">
+    <input type="number" id="thickness" placeholder="السماكة (متر)">
+    
+    <select id="bagsPerM3">
+      <option value="5">5 أكياس لكل م³</option>
+      <option value="6">6 أكياس لكل م³</option>
+      <option value="7">7 أكياس لكل م³</option>
+      <option value="8">8 أكياس لكل م³</option>
+    </select>
+
+    <br>
+    <button onclick="calculate()">احسب الكمية والسعر</button>
+    <div class="result" id="result"></div>
+    <div class="note">
+      * هذا السعر مبدئي وقد يختلف حسب مسافة المشروع وعوامل أخرى
+    </div>
+    <a id="whatsappLink" class="whatsapp-btn" target="_blank">📲 تواصل معنا عبر واتساب</a>
+  </div>
+
+  <script>
+    function calculate() {
+      let name = document.getElementById('name').value;
+      let phone = document.getElementById('phone').value;
+      let length = parseFloat(document.getElementById('length').value);
+      let width = parseFloat(document.getElementById('width').value);
+      let thickness = parseFloat(document.getElementById('thickness').value);
+      let bagsPerM3 = parseInt(document.getElementById('bagsPerM3').value);
+
+      if (isNaN(length) || isNaN(width) || isNaN(thickness)) {
+        document.getElementById('result').innerHTML = "⚠️ الرجاء إدخال الطول والعرض والسماكة";
+        document.getElementById('whatsappLink').style.display = "none";
+        return;
+      }
+
+      // حساب حجم الخرسانة
+      let volume = length * width * thickness;
+
+      // عدد الشاحنات (8 م³ لكل شاحنة)
+      let trucks = Math.ceil(volume / 8);
+
+      // عدد الأكياس الإجمالي
+      let totalBags = volume * bagsPerM3;
+
+      // حساب السعر لكل متر مكعب
+      let basePrice = 32000; // ريال يمني لكل م³ عند 5 أكياس
+      let extraPrice = 0;
+      if (bagsPerM3 === 6) extraPrice = 2000;
+      else if (bagsPerM3 === 7) extraPrice = 3000;
+      else if (bagsPerM3 === 8) extraPrice = 4000;
+
+      let pricePerM3 = basePrice + extraPrice;
+      let totalPrice = volume * pricePerM3;
+
+      // عرض النتائج
+      document.getElementById('result').innerHTML = 
+        `🔢 الكمية المطلوبة: ${volume.toFixed(2)} م³
+        <br>🧱 عدد أكياس الأسمنت: ${totalBags.toFixed(0)} كيس
+        <br>🚛 عدد الشاحنات: ${trucks} شاحنة
+        <br>💰 السعر الإجمالي المبدئي: ${totalPrice.toLocaleString()} ريال`;
+
+      // رابط الواتساب
+      let message = `👷‍♂️ مرحباً، أنا ${name || "عميل"}\n📞 رقمي: ${phone || "غير مذكور"}\n🔢 أحتاج ${volume.toFixed(2)} م³ من الخرسانة\n🧱 عدد الأكياس: ${totalBags.toFixed(0)}\n🚛 عدد الشاحنات: ${trucks}\n💰 السعر الإجمالي المبدئي: ${totalPrice.toLocaleString()} ريال\n* هذا السعر مبدئي وقد يختلف حسب مسافة المشروع وعوامل أخرى`;
+      let waLink = `https://wa.me/967770355234?text=${encodeURIComponent(message)}`;
+      document.getElementById('whatsappLink').href = waLink;
+      document.getElementById('whatsappLink').style.display = "inline-block";
+    }
+  </script>
+
+</body>
+</html>
